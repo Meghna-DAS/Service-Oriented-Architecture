@@ -1,0 +1,23 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+   <entry key="EMPPOC.EMPNO:db_column_not_null">false</entry>
+   <entry key="EMPPOC.EMPNAME:db_column_size">50</entry>
+   <entry key="EMPPOC.EMPSALARY:db_column_size">50</entry>
+   <entry key="EMPPOC.EMPNO:db_column_scale">0</entry>
+   <entry key="EMPPOC.EMPSALARY:db_column_not_null">false</entry>
+   <entry key="EMPPOC.STATUS:db_column_not_null">false</entry>
+   <entry key="EMPPOC.STATUS:db_column_type">VARCHAR2</entry>
+   <entry key="EMPPOC:db_table_type">TABLE</entry>
+   <entry key="EMPPOC.EMPNAME:db_column_not_null">false</entry>
+   <entry key="EMPPOC:db_column_3">STATUS</entry>
+   <entry key="EMPPOC:db_column_2">EMPSALARY</entry>
+   <entry key="EMPPOC:db_column_1">EMPNAME</entry>
+   <entry key="root_descriptor_alias">EMPPOC</entry>
+   <entry key="EMPPOC:db_column_0">EMPNO</entry>
+   <entry key="EMPPOC.EMPNO:db_column_precision">38</entry>
+   <entry key="EMPPOC.EMPNAME:db_column_type">VARCHAR2</entry>
+   <entry key="EMPPOC.EMPNO:db_column_type">NUMBER</entry>
+   <entry key="EMPPOC.STATUS:db_column_size">20</entry>
+   <entry key="EMPPOC.EMPSALARY:db_column_type">VARCHAR2</entry>
+</properties>
