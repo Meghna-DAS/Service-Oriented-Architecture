@@ -1,0 +1,101 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Fri Jan 06 18:34:02 IST 2023
+  Author:  meghnadas
+  Type: BPEL 2.0 Process
+  Purpose: One Way BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+<process name="DBtoDB_BPEL"
+               targetNamespace="http://xmlns.oracle.com/HelloWorld/DBPolltoDB_SOAProject/DBtoDB_BPEL"
+               xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+               xmlns:client="http://xmlns.oracle.com/HelloWorld/DBPolltoDB_SOAProject/DBtoDB_BPEL"
+               xmlns:ora="http://schemas.oracle.com/xpath/extension"
+               xmlns:bpelx="http://schemas.oracle.com/bpel/extension"
+               xmlns:ui="http://xmlns.oracle.com/soa/designer"
+               xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:ns1="http://xmlns.oracle.com/pcbpel/adapter/db/HelloWorld/DBPolltoDB_SOAProject/PollEmpDataFromDatabase"
+         xmlns:ns2="http://xmlns.oracle.com/pcbpel/adapter/db/HelloWorld/DBPolltoDB_SOAProject/InsertDataintoEMPPOC"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+         xmlns:oraext="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.ExtFunc"
+         xmlns:bpm="http://xmlns.oracle.com/bpmn20/extensions"
+         xmlns:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20"
+         xmlns:ess="http://xmlns.oracle.com/scheduler" xmlns:hwf="http://xmlns.oracle.com/bpel/workflow/xpath"
+         xmlns:xref="http://www.oracle.com/XSL/Transform/java/oracle.tip.xref.xpath.XRefXPathFunctions"
+         xmlns:dvm="http://www.oracle.com/XSL/Transform/java/oracle.tip.dvm.LookupValue"
+         xmlns:bpws="http://schemas.xmlsoap.org/ws/2003/03/business-process/"
+         xmlns:xdk="http://schemas.oracle.com/bpel/extension/xpath/function/xdk"
+         xmlns:ids="http://xmlns.oracle.com/bpel/services/IdentityService/xpath"
+         xmlns:ldap="http://schemas.oracle.com/xpath/extension/ldap">
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      PARTNERLINKS                                                      
+      List of services participating in this BPEL process               
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <import namespace="http://xmlns.oracle.com/pcbpel/adapter/db/HelloWorld/DBPolltoDB_SOAProject/PollEmpDataFromDatabase"
+          location="../WSDLs/PollEmpDataFromDatabase.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"
+          ui:processWSDL="true"/>
+  <partnerLinks>
+    <!-- 
+      The 'client' role represents the requester of this service. It is 
+      used for callback. The location and correlation information associated
+      with the client role are automatically set using WS-Addressing.
+    -->
+    <partnerLink name="PollEmpDataFromDatabase" partnerLinkType="ns1:PollEmpDataFromDatabase_plt"
+                 myRole="PollEmpDataFromDatabase_role"/>
+    <partnerLink name="InsertDataintoEMPPOC" partnerLinkType="ns2:InsertDataintoEMPPOC_plt"
+                 partnerRole="InsertDataintoEMPPOC_role"/>
+  </partnerLinks>
+
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      VARIABLES                                                        
+      List of messages and XML documents used within this BPEL process 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <variables>
+    <!-- Reference to the message passed as input during initiation -->
+    <variable name="receiveInput_receive_InputVariable" messageType="ns1:EmpCollection_msg"/>
+    <variable name="Invoke1_insert_InputVariable" messageType="ns2:EmppocCollection_msg"/>
+    <variable name="ErrorString" type="xsd:string"/>
+    <variable name="Variable1" type="xsd:string"/>
+  </variables>
+  <faultHandlers>
+    <catchAll>
+      <assign name="Assign1">
+        <copy>
+          <from>ora:getFaultAsString()</from>
+          <to expressionLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">$ErrorString</to>
+        </copy>
+      </assign>
+    </catchAll>
+  </faultHandlers>
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+     ORCHESTRATION LOGIC                                               
+     Set of activities coordinating the flow of messages across the    
+     services integrated within this business process                  
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <sequence name="main">
+
+    <!-- Receive input from requestor. (Note: This maps to operation defined in DBtoDB_BPEL.wsdl) -->
+    <receive name="receiveInput" partnerLink="PollEmpDataFromDatabase" portType="ns1:PollEmpDataFromDatabase_ptt"
+             operation="receive" variable="receiveInput_receive_InputVariable" createInstance="yes"/>
+    <assign name="Transformation1">
+      <bpelx:annotation>
+        <bpelx:pattern patternName="bpelx:transformation"></bpelx:pattern>
+      </bpelx:annotation>
+      <copy>
+        <from>ora:doXSLTransformForDoc("../Transformations/Transformation1_1.xsl", $receiveInput_receive_InputVariable.EmpCollection)</from>
+        <to variable="Invoke1_insert_InputVariable" part="EmppocCollection"/>
+      </copy>
+    </assign>
+    <invoke name="Invoke1" bpelx:invokeAsDetail="no" partnerLink="InsertDataintoEMPPOC"
+            portType="ns2:InsertDataintoEMPPOC_ptt" operation="insert" inputVariable="Invoke1_insert_InputVariable"/>
+  </sequence>
+</process>
